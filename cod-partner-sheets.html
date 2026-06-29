@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Partner — Data Directory</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue:#1B4FD8; --blue-pale:#EEF3FF; --blue-dark:#0F2E9A;
+    --bg:#F0F4FF; --text:#0D1B4B; --text-muted:#6B7A99; --text-light:#A0AECB;
+    --border:#E2E8F8;
+  }
+  body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+
+  /* ── LOGIN PAGE ─────────────────────────────── */
+  .login-page { display:flex; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg,#EEF3FF 0%,#F0F4FF 50%,#E8EEFF 100%); }
+  .login-card { background:#fff; border-radius:24px; padding:44px 40px 36px; width:400px; max-width:95vw; box-shadow:0 8px 40px rgba(27,79,216,.13), 0 1px 3px rgba(27,79,216,.07); }
+  .login-logo { width:52px; height:52px; background:var(--blue); border-radius:15px; display:flex; align-items:center; justify-content:center; margin-bottom:22px; }
+  .login-logo i { color:#fff; font-size:24px; }
+  .login-title { font-size:24px; font-weight:800; color:var(--text); margin-bottom:4px; }
+  .login-title span { color:var(--blue); }
+  .login-sub { font-size:13.5px; color:var(--text-muted); margin-bottom:32px; }
+  .login-field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+  .login-field label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+  .login-field-wrap { position:relative; }
+  .login-field-wrap i { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:17px; color:var(--text-light); pointer-events:none; }
+  .login-input { width:100%; height:46px; border:1.5px solid var(--border); border-radius:11px; padding:0 14px 0 42px; font-size:14px; font-family:inherit; color:var(--text); outline:none; transition:border-color .15s, box-shadow .15s; background:#fff; }
+  .login-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(27,79,216,.1); }
+  .login-input.error { border-color:#E11D48; }
+  .login-error { font-size:12px; color:#E11D48; margin-top:-10px; margin-bottom:6px; display:none; }
+  .login-error.show { display:block; }
+  .login-btn { width:100%; height:48px; background:var(--blue); color:#fff; border:none; border-radius:11px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px; transition:background .15s, transform .1s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .login-btn:hover { background:var(--blue-dark); }
+  .login-btn:active { transform:scale(.98); }
+  .login-footer { text-align:center; margin-top:22px; font-size:12px; color:var(--text-light); }
+  .login-decor { position:absolute; pointer-events:none; }
+  #login-page { position:relative; overflow:hidden; }
+
+  .topnav { background:#fff; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; height:58px; gap:12px; position:sticky; top:0; z-index:100; }
+  .topnav-logo { width:34px; height:34px; background:var(--blue); border-radius:9px; display:flex; align-items:center; justify-content:center; }
+  .topnav-logo i { color:#fff; font-size:17px; }
+  .topnav-brand { font-size:15px; font-weight:700; }
+  .topnav-sub { font-size:11px; color:var(--text-muted); }
+  .topnav-pill { background:var(--blue-pale); color:var(--blue); font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+  .topnav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .badge { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid; }
+  .badge.ok { background:#E8F5E9; color:#2E7D32; border-color:#C8E6C9; }
+  .badge.error { background:#FFF1F2; color:#9F1239; border-color:#FECDD3; }
+  .badge.loading { background:#EEF3FF; color:#1B4FD8; border-color:#C7D7FD; }
+  .db-status { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid; }
+  .db-status.ok      { background:#E8F5E9; color:#2E7D32; border-color:#C8E6C9; }
+  .db-status.error   { background:#FFF1F2; color:#9F1239; border-color:#FECDD3; }
+  .db-status.loading { background:#EEF3FF; color:#1B4FD8; border-color:#C7D7FD; }
+  .topnav-btn { background:none; border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-size:13px; font-weight:500; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; font-family:inherit; }
+  .topnav-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-pale); }
+  .topnav-btn-primary { background:var(--blue); color:#fff; border:none; border-radius:8px; padding:6px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:inherit; transition:background .15s; }
+  .topnav-btn-primary:hover { background:var(--blue-dark); }
+
+  .layout { display:flex; flex:1; }
+  .sidebar { width:240px; flex-shrink:0; background:#f0f4ff; border-right:1px solid var(--border); padding:16px 12px; display:flex; flex-direction:column; gap:4px; }
+  .sidebar-section { font-size:10px; font-weight:700; color:var(--text-light); letter-spacing:.8px; text-transform:uppercase; padding:12px 8px 6px; }
+  .sidebar-item { display:flex; align-items:center; gap:13px; padding:10px 12px; border-radius:14px; font-size:14px; font-weight:500; color:var(--text-muted); cursor:pointer; transition:all .15s; text-decoration:none; }
+  .sidebar-item:hover { background:#e2e9f8; color:var(--blue); }
+  .sidebar-item:hover .sidebar-icon { background:#c7d7fd; }
+  .sidebar-item.active { background:var(--blue-pale); color:var(--blue); font-weight:700; }
+  .sidebar-item.active .sidebar-icon { background:var(--blue); }
+  .sidebar-item.active .sidebar-icon i { color:#fff; }
+  .sidebar-icon { width:36px; height:36px; border-radius:10px; background:#e8eef8; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .15s; }
+  .sidebar-icon i { font-size:17px; color:var(--text-muted); transition:color .15s; }
+  .sidebar-item.active .sidebar-icon i { color:#fff; }
+  .sidebar-item:hover .sidebar-icon i { color:var(--blue); }
+  .sidebar-label { display:flex; flex-direction:column; }
+  .sidebar-label-main { font-size:13.5px; font-weight:600; line-height:1.2; }
+  .sidebar-label-sub { font-size:11px; color:var(--text-light); font-weight:400; margin-top:1px; }
+  .sidebar-item.active .sidebar-label-sub { color:rgba(27,79,216,.6); }
+  .sidebar-item:hover .sidebar-label-sub { color:rgba(27,79,216,.5); }
+  .sidebar-badge { margin-left:auto; background:var(--blue); color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; }
+
+  .main { flex:1; overflow-y:auto; padding:24px 28px 40px; }
+  .page-title { font-size:22px; font-weight:800; margin-bottom:3px; }
+  .page-title span { color:var(--blue); }
+  .page-subtitle { font-size:13px; color:var(--text-muted); margin-bottom:20px; }
+
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+  .stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .si-blue{background:var(--blue-pale);color:var(--blue);}
+  .si-green{background:#ECFDF5;color:#059669;}
+  .si-amber{background:#FFFBEB;color:#D97706;}
+  .si-pink{background:#FFF1F2;color:#E11D48;}
+  .stat-label { font-size:11.5px; color:var(--text-muted); font-weight:500; }
+  .stat-value { font-size:22px; font-weight:800; line-height:1.1; }
+
+  .filter-bar { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin-bottom:16px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+  .filter-group { display:flex; flex-direction:column; gap:5px; flex:1; min-width:130px; }
+  .filter-label { font-size:11.5px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:5px; }
+  .filter-group select, .filter-group input { height:38px; border:1px solid var(--border); border-radius:8px; padding:0 12px; font-size:13.5px; font-family:inherit; color:var(--text); background:#fff; outline:none; transition:border-color .15s; width:100%; }
+  .filter-group select:focus, .filter-group input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(27,79,216,.1); }
+  .search-g { flex:1.5; }
+  .search-wrap { position:relative; }
+  .search-wrap > i { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--text-muted); pointer-events:none; }
+  .search-wrap input { padding-left:36px; }
+  .icon-btn { height:38px; padding:0 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:inherit; border:1px solid; transition:all .15s; white-space:nowrap; }
+  .refresh-btn { background:var(--blue-pale); border-color:#C7D7FD; color:var(--blue); }
+  .refresh-btn:hover { background:#dde8ff; }
+  .refresh-btn.spinning i { animation:spin .7s linear infinite; }
+  .reset-btn { background:none; border-color:var(--border); color:var(--text-muted); }
+  .reset-btn:hover { border-color:#E11D48; color:#E11D48; background:#FFF1F2; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .results-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .results-count { font-size:13px; color:var(--text-muted); }
+  .results-count strong { color:var(--text); font-weight:700; }
+  .view-toggle { display:flex; gap:4px; }
+  .view-btn { width:32px; height:32px; border-radius:7px; border:1px solid var(--border); background:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--text-muted); cursor:pointer; transition:all .12s; }
+  .view-btn.active { background:var(--blue); border-color:var(--blue); color:#fff; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:12px; transition:box-shadow .18s,border-color .18s,transform .15s; cursor:pointer; animation:fadeUp .3s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .card:hover { box-shadow:0 8px 24px rgba(27,79,216,.12); border-color:#C7D7FD; transform:translateY(-2px); }
+  .card-top { display:flex; align-items:center; gap:11px; }
+  .avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+  .card-name { font-size:14px; font-weight:700; line-height:1.2; }
+  .card-city { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; align-self:flex-start; }
+  .card-divider { height:1px; background:var(--border); }
+  .card-detail { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-muted); }
+  .card-detail i { font-size:14px; flex-shrink:0; }
+  .card-detail span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .card-actions { display:flex; gap:7px; margin-top:2px; }
+  .action-btn { flex:1; height:32px; border-radius:7px; border:1px solid var(--border); background:none; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; color:var(--text-muted); transition:all .13s; font-family:inherit; }
+  .action-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-pale); }
+  .action-btn-wa { background:#25D366; border-color:#25D366; color:#fff; }
+  .action-btn-wa:hover { background:#1da851; border-color:#1da851; color:#fff; }
+  .action-btn-site { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .action-btn-site:hover { background:var(--blue-dark); border-color:var(--blue-dark); color:#fff; }
+  .modal-btn-site { background:var(--blue-pale); border-color:#C7D7FD; color:var(--blue); }
+  .modal-btn-site:hover { background:#dde8ff; }
+  .card-site-link {
+    display:flex; align-items:center; gap:7px;
+    background:var(--blue-pale); color:var(--blue);
+    border:1px solid #C7D7FD; border-radius:8px;
+    padding:7px 10px; font-size:12px; font-weight:600;
+    text-decoration:none; cursor:pointer;
+    transition:background .15s, border-color .15s;
+    overflow:hidden;
+  }
+  .card-site-link:hover { background:#dde8ff; border-color:#a5bcf8; }
+  .card-site-link i { font-size:14px; flex-shrink:0; }
+  .card-site-link span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+
+  .list-view { display:flex; flex-direction:column; }
+  .list-view .card { border-radius:0; border-bottom:none; padding:12px 18px; flex-direction:row; align-items:center; gap:14px; animation:none; }
+  .list-view .card:first-child { border-radius:14px 14px 0 0; }
+  .list-view .card:last-child { border-radius:0 0 14px 14px; border-bottom:1px solid var(--border); }
+  .list-view .card:only-child { border-radius:14px; border-bottom:1px solid var(--border); }
+  .list-view .card-top { flex:0 0 220px; }
+  .list-view .card-detail { flex:1; }
+  .list-view .card-divider, .list-view .pill { display:none; }
+  .list-view .card-actions { margin-top:0; flex:0 0 auto; }
+
+  .skeleton { background:#f5f7ff; border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:12px; }
+  .sk-line { background:linear-gradient(90deg,#e2e8f8 25%,#eef3ff 50%,#e2e8f8 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px; }
+  .sk-circle { width:44px; height:44px; border-radius:50%; background:linear-gradient(90deg,#e2e8f8 25%,#eef3ff 50%,#e2e8f8 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; flex-shrink:0; }
+  @keyframes shimmer { to { background-position:-200% 0; } }
+
+  .state-box { grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--text-muted); }
+  .state-box i { font-size:40px; margin-bottom:12px; display:block; opacity:.4; }
+  .state-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:6px; }
+  .state-btn { margin-top:14px; display:inline-flex; align-items:center; gap:6px; padding:8px 18px; background:var(--blue); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,27,75,.35); z-index:200; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:18px; width:440px; max-width:95vw; box-shadow:0 20px 60px rgba(13,27,75,.18); overflow:hidden; animation:modalIn .2s ease; }
+  @keyframes modalIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+  .modal-header { background:var(--blue); padding:22px 24px; display:flex; align-items:center; gap:14px; }
+  .modal-avatar { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; background:rgba(255,255,255,.2); color:#fff; flex-shrink:0; }
+  .modal-name { font-size:18px; font-weight:800; color:#fff; }
+  .modal-role { font-size:13px; color:rgba(255,255,255,.75); margin-top:2px; }
+  .modal-close { margin-left:auto; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.18); border:none; color:#fff; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .modal-body { padding:20px 24px; display:flex; flex-direction:column; gap:13px; }
+  .modal-row { display:flex; align-items:center; gap:12px; }
+  .modal-icon { width:36px; height:36px; border-radius:9px; background:var(--blue-pale); color:var(--blue); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .modal-key { font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  .modal-val { font-size:14px; font-weight:500; color:var(--text); }
+  .modal-footer { padding:0 24px 22px; display:flex; gap:10px; }
+  .modal-btn { flex:1; height:40px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; border:1px solid var(--border); background:none; color:var(--text-muted); transition:all .13s; font-family:inherit; }
+  .modal-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-pale); }
+  .modal-btn-wa { background:#25D366; border-color:#25D366; color:#fff; }
+  .modal-btn-wa:hover { background:#1da851; }
+  .modal-btn-primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .modal-btn-primary:hover { background:var(--blue-dark); }
+
+  .add-form { padding:20px 24px; display:flex; flex-direction:column; gap:13px; }
+  .add-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .form-group { display:flex; flex-direction:column; gap:5px; }
+  .form-group label { font-size:11.5px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; }
+  .form-group input, .form-group select { height:38px; border:1px solid var(--border); border-radius:8px; padding:0 12px; font-size:13.5px; font-family:inherit; color:var(--text); outline:none; transition:border-color .15s; }
+  .form-group input:focus, .form-group select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(27,79,216,.1); }
+
+  .toast { position:fixed; bottom:24px; right:24px; z-index:300; background:var(--text); color:#fff; padding:12px 18px; border-radius:10px; font-size:13.5px; font-weight:500; display:flex; align-items:center; gap:9px; box-shadow:0 8px 30px rgba(0,0,0,.18); transform:translateY(80px); opacity:0; transition:all .25s cubic-bezier(.34,1.56,.64,1); pointer-events:none; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.ok i { color:#4ADE80; }
+  .toast.err i { color:#F87171; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN PAGE ══════════════════════════════════════ -->
+<div id="login-page" class="login-page">
+  <div class="login-card">
+    <div class="login-logo"><i class="ti ti-database"></i></div>
+    <div class="login-title">COD <span>Partner</span></div>
+    <div class="login-sub">Connectez-vous pour accéder à la plateforme</div>
+
+    <div class="login-field">
+      <label>Identifiant</label>
+      <div class="login-field-wrap">
+        <i class="ti ti-user"></i>
+        <input class="login-input" id="l-user" type="text" placeholder="Votre identifiant" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="login-field">
+      <label>Mot de passe</label>
+      <div class="login-field-wrap">
+        <i class="ti ti-lock"></i>
+        <input class="login-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+    </div>
+
+    <div class="login-error" id="l-error"><i class="ti ti-alert-circle"></i> <span>Identifiant ou mot de passe incorrect</span></div>
+
+    <button class="login-btn" id="l-btn" onclick="doLogin()">
+      <i class="ti ti-arrow-right"></i> Se connecter
+    </button>
+
+    <div class="login-footer">COD Partner · Plateforme interne · Accès restreint</div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════ -->
+<div id="app-page" style="display:none;flex-direction:column;flex:1;">
+<nav class="topnav">
+  <div class="topnav-logo"><i class="ti ti-database"></i></div>
+  <div>
+    <div class="topnav-brand">COD Partner</div>
+    <div class="topnav-sub">Data Directory</div>
+  </div>
+  <span class="topnav-pill">● LIVE</span>
+  <div class="topnav-right">
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px 16px;">
+      <div style="width:38px;height:38px;background:var(--blue);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="ti ti-database" style="color:#fff;font-size:18px"></i>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text)">COD Partner</div>
+        <div style="font-size:11px;color:var(--text-muted)">Data Directory</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Navigation</div>
+
+    <a class="sidebar-item active" href="#">
+      <div class="sidebar-icon"><i class="ti ti-building"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Sociétés</span>
+        <span class="sidebar-label-sub">Toutes les entrées</span>
+      </div>
+      <span class="sidebar-badge" id="sb-count">—</span>
+    </a>
+
+    <a class="sidebar-item" href="#">
+      <div class="sidebar-icon"><i class="ti ti-map-pin"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Par Ville</span>
+        <span class="sidebar-label-sub">Vue par localisation</span>
+      </div>
+    </a>
+
+    <a class="sidebar-item" href="#">
+      <div class="sidebar-icon"><i class="ti ti-briefcase"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Par Spécialité</span>
+        <span class="sidebar-label-sub">Secteur d'activité</span>
+      </div>
+    </a>
+
+    <a class="sidebar-item" href="#">
+      <div class="sidebar-icon"><i class="ti ti-flag"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Par Pays</span>
+        <span class="sidebar-label-sub">Vue géographique</span>
+      </div>
+    </a>
+
+    <div class="sidebar-section" style="margin-top:8px">Outils</div>
+
+    <a class="sidebar-item" href="#">
+      <div class="sidebar-icon"><i class="ti ti-chart-bar"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Statistiques</span>
+        <span class="sidebar-label-sub">Rapports & analyses</span>
+      </div>
+    </a>
+
+    <a class="sidebar-item" href="#">
+      <div class="sidebar-icon"><i class="ti ti-settings"></i></div>
+      <div class="sidebar-label">
+        <span class="sidebar-label-main">Paramètres</span>
+        <span class="sidebar-label-sub">Configuration</span>
+      </div>
+    </a>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Data <span>Directory</span></h1>
+    <p class="page-subtitle">Rechercher et filtrer par pays, ville et spécialité</p>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-building"></i></div><div><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-green"><i class="ti ti-flag"></i></div><div><div class="stat-label">Pays</div><div class="stat-value" id="st-pays">—</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-amber"><i class="ti ti-map-pin"></i></div><div><div class="stat-label">Villes</div><div class="stat-value" id="st-villes">—</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-pink"><i class="ti ti-briefcase"></i></div><div><div class="stat-label">Spécialités</div><div class="stat-value" id="st-spec">—</div></div></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group search-g">
+        <div class="filter-label"><i class="ti ti-search"></i> Recherche</div>
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="f-search" placeholder="Nom, ville, email..."></div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label"><i class="ti ti-flag"></i> Pays</div>
+        <select id="f-pays"><option value="">— Tous —</option></select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label"><i class="ti ti-map-pin"></i> Ville</div>
+        <select id="f-ville"><option value="">— Toutes —</option></select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label"><i class="ti ti-briefcase"></i> Spécialité</div>
+        <select id="f-spec"><option value="">— Toutes —</option></select>
+      </div>
+      <button class="icon-btn refresh-btn" id="refresh-btn" onclick="loadData()"><i class="ti ti-refresh"></i> Actualiser</button>
+      <button class="icon-btn reset-btn" onclick="resetFilters()"><i class="ti ti-x"></i> Reset</button>
+    </div>
+
+    <div class="results-bar">
+      <div class="results-count"><strong id="r-count">—</strong> résultats</div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-grid"><i class="ti ti-layout-grid"></i></button>
+        <button class="view-btn" id="btn-list"><i class="ti ti-list"></i></button>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="m-init">?</div>
+      <div><div class="modal-name" id="m-name">—</div><div class="modal-role" id="m-role">—</div></div>
+      <button class="modal-close" onclick="closeModal('detail-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-row"><div class="modal-icon"><i class="ti ti-briefcase"></i></div><div><div class="modal-key">Spécialité</div><div class="modal-val" id="m-spec">—</div></div></div>
+      <div class="modal-row"><div class="modal-icon"><i class="ti ti-map-pin"></i></div><div><div class="modal-key">Localisation</div><div class="modal-val" id="m-loc">—</div></div></div>
+      <div class="modal-row"><div class="modal-icon"><i class="ti ti-phone"></i></div><div><div class="modal-key">Téléphone</div><div class="modal-val" id="m-phone">—</div></div></div>
+      <div class="modal-row"><div class="modal-icon" style="background:#E8F5E9;color:#2E7D32"><i class="ti ti-brand-whatsapp"></i></div><div><div class="modal-key">WhatsApp</div><div class="modal-val" id="m-wa">—</div></div></div>
+      <div class="modal-row" id="m-site-row"><div class="modal-icon" style="background:#EEF3FF;color:#1B4FD8"><i class="ti ti-world"></i></div><div><div class="modal-key">Site Web</div><div class="modal-val"><a id="m-site" href="#" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:500">—</a></div></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="copyModalPhone()"><i class="ti ti-phone"></i> Tél</button>
+      <button class="modal-btn modal-btn-site" id="m-site-btn" onclick="openModalSite()" style="display:none"><i class="ti ti-world"></i> Site Web</button>
+      <button class="modal-btn modal-btn-wa" onclick="sendModalWA()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal" style="width:500px;max-width:95vw">
+    <div class="modal-header">
+      <div class="modal-avatar"><i class="ti ti-plus" style="font-size:20px"></i></div>
+      <div><div class="modal-name">Ajouter une société</div><div class="modal-role">Nouvelle entrée dans la base de données</div></div>
+      <button class="modal-close" onclick="closeModal('add-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="add-form">
+      <div class="add-row">
+        <div class="form-group"><label>Nom *</label><input id="a-nom" placeholder="Nom de la société"></div>
+        <div class="form-group"><label>Spécialité</label><select id="a-spec"><option value="">— Choisir —</option></select></div>
+      </div>
+      <div class="add-row">
+        <div class="form-group"><label>Pays *</label><select id="a-pays"><option value="">— Choisir —</option></select></div>
+        <div class="form-group"><label>Ville *</label><input id="a-ville" placeholder="Casablanca"></div>
+      </div>
+      <div class="add-row">
+        <div class="form-group"><label>Téléphone</label><input id="a-tel" placeholder="+212 06..."></div>
+        <div class="form-group"><label>WhatsApp</label><input id="a-wa" placeholder="+212 06..."></div>
+      </div>
+      <div class="form-group"><label>Site Web</label><input id="a-site" placeholder="https://www.exemple.ma" style="width:100%"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeModal('add-modal')"><i class="ti ti-x"></i> Annuler</button>
+      <button class="modal-btn modal-btn-primary" id="add-save-btn" onclick="addEntry()"><i class="ti ti-check"></i> Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end app-page -->
+
+<div class="toast ok" id="toast"><i class="ti ti-check" id="t-icon"></i><span id="t-msg">OK</span></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXR43bP6aue0KaoOFGJ_nOHvCvKAck0IE5rtbIRJQAUogLYRq-j-D8qLlxnpQmNkL0UA/exec";
+
+const PALETTE = [
+  ["#ECFDF5","#065F46"],["#EFF6FF","#1E40AF"],["#FFFBEB","#92400E"],
+  ["#FFF1F2","#9F1239"],["#F5F3FF","#4C1D95"],["#F0FDF4","#14532D"],
+  ["#FFF7ED","#9A3412"],["#FEF3C7","#78350F"],["#FCE7F3","#831843"],["#E0F2FE","#0C4A6E"]
+];
+const specColorMap = {};
+let palIdx = 0;
+function specColor(s) {
+  if (!s) return PALETTE[0];
+  const k = s.toLowerCase().trim();
+  if (!specColorMap[k]) { specColorMap[k] = PALETTE[palIdx % PALETTE.length]; palIdx++; }
+  return specColorMap[k];
+}
+
+let ALL = [], FILTERED = [], VIEW = "grid", MD = null;
+
+// ══ LOGIN ══════════════════════════════════════════
+async function doLogin() {
+  const user = document.getElementById("l-user").value.trim();
+  const pass = document.getElementById("l-pass").value.trim();
+  const err  = document.getElementById("l-error");
+  const btn  = document.getElementById("l-btn");
+
+  if (!user || !pass) {
+    err.querySelector("span").textContent = "Veuillez remplir tous les champs";
+    err.classList.add("show"); return;
+  }
+
+  btn.innerHTML = '<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> Vérification...';
+  btn.disabled = true;
+  err.classList.remove("show");
+
+  try {
+    const res  = await fetch(SCRIPT_URL + "?action=login&user=" + encodeURIComponent(user) + "&pass=" + encodeURIComponent(pass));
+    const json = await res.json();
+
+    if (json.status === "ok") {
+      sessionStorage.setItem("cod_auth", user);
+      btn.innerHTML = '<i class="ti ti-check"></i> Connecté!';
+      setTimeout(showApp, 500);
+    } else {
+      throw new Error("invalid");
+    }
+  } catch(e) {
+    err.querySelector("span").textContent = "Identifiant ou mot de passe incorrect";
+    err.classList.add("show");
+    ["l-user","l-pass"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add("error");
+      setTimeout(() => el.classList.remove("error"), 1200);
+    });
+    btn.innerHTML = '<i class="ti ti-arrow-right"></i> Se connecter';
+    btn.disabled = false;
+  }
+}
+
+function showApp() {
+  document.getElementById("login-page").style.display = "none";
+  const app = document.getElementById("app-page");
+  app.style.display = "flex";
+  app.style.flexDirection = "column";
+  initApp();
+}
+
+// ══ INIT ══════════════════════════════════════════
+window.onload = () => {
+  if (sessionStorage.getItem("cod_auth")) {
+    showApp();
+  }
+  ["l-user","l-pass"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  });
+};
+
+function initApp() {
+  loadData();
+  document.getElementById("f-search").addEventListener("input", applyFilters);
+  document.getElementById("f-pays").addEventListener("change", () => { syncVilles(); applyFilters(); });
+  document.getElementById("f-ville").addEventListener("change", applyFilters);
+  document.getElementById("f-spec").addEventListener("change", applyFilters);
+  document.getElementById("btn-grid").addEventListener("click", () => setView("grid"));
+  document.getElementById("btn-list").addEventListener("click", () => setView("list"));
+  document.querySelectorAll(".modal-overlay").forEach(el =>
+    el.addEventListener("click", e => { if (e.target === el) el.classList.remove("open"); })
+  );
+}
+
+async function loadData() {
+  const btn = document.getElementById("refresh-btn");
+  btn.classList.add("spinning");
+  setBadge("loading", "Chargement...");
+  showSkeletons();
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=get");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    if (json.status !== "ok") throw new Error(json.message || "Erreur");
+
+    ALL = json.data.map((row, i) => {
+      const keys = Object.keys(row);
+      const g = (...c) => {
+        for (const x of c) {
+          const normalize = s => s.toLowerCase().replace(/[éèê]/g,"e").replace(/[^a-z0-9]/g,"");
+          const f = keys.find(k => normalize(k) === normalize(x) || normalize(k).includes(normalize(x)));
+          if (f && row[f] !== undefined && String(row[f]).trim()) return String(row[f]).trim();
+        }
+        return "";
+      };
+      return {
+        id: i, row_index: row.row_index,
+        nom:        g("nom","name","societe","société","company"),
+        pays:       g("pays","country"),
+        ville:      g("ville","city"),
+        specialite: g("specialite","spécialité","spec","secteur"),
+        telephone:  g("telephone","téléphone","tel","phone"),
+        whatsapp:   g("whatsapp","wa"),
+        site_web:   g("site web","site_web","siteweb","website","site","web","url","lien")
+      };
+    }).filter(d => d.nom);
+
+    // precompute colors
+    [...new Set(ALL.map(d=>d.specialite).filter(Boolean))].forEach(s => specColor(s));
+
+    buildFilters();
+    applyFilters();
+    setBadge("ok", `${ALL.length} entrées`);
+    showToast(`${ALL.length} entrées chargées`);
+  } catch(err) {
+    setBadge("error", "Erreur connexion");
+    showToast("Erreur: " + err.message, true);
+    document.getElementById("grid").innerHTML = `<div class="state-box">
+      <i class="ti ti-wifi-off"></i>
+      <div class="state-title">Impossible de charger les données</div>
+      <div class="state-sub" style="font-size:13px;margin-bottom:4px">${err.message}</div>
+      <button class="state-btn" onclick="loadData()"><i class="ti ti-refresh"></i> Réessayer</button>
+    </div>`;
+  } finally {
+    btn.classList.remove("spinning");
+  }
+}
+
+function buildFilters() {
+  const pays  = [...new Set(ALL.map(d=>d.pays).filter(Boolean))].sort();
+  const specs = [...new Set(ALL.map(d=>d.specialite).filter(Boolean))].sort();
+
+  const fp = document.getElementById("f-pays");
+  fp.innerHTML = '<option value="">— Tous les pays —</option>' + pays.map(p=>`<option>${p}</option>`).join("");
+  const fs = document.getElementById("f-spec");
+  fs.innerHTML = '<option value="">— Toutes —</option>' + specs.map(s=>`<option>${s}</option>`).join("");
+
+  // add modal
+  document.getElementById("a-pays").innerHTML = '<option value="">— Choisir —</option>' + pays.map(p=>`<option>${p}</option>`).join("");
+  document.getElementById("a-spec").innerHTML = '<option value="">— Choisir —</option>' + specs.map(s=>`<option>${s}</option>`).join("");
+
+  syncVilles();
+}
+
+function syncVilles() {
+  const pays = document.getElementById("f-pays").value;
+  const villes = [...new Set(ALL.filter(d => !pays || d.pays===pays).map(d=>d.ville).filter(Boolean))].sort();
+  document.getElementById("f-ville").innerHTML = '<option value="">— Toutes —</option>' + villes.map(v=>`<option>${v}</option>`).join("");
+}
+
+function applyFilters() {
+  const pays  = document.getElementById("f-pays").value;
+  const ville = document.getElementById("f-ville").value;
+  const spec  = document.getElementById("f-spec").value;
+  const q     = document.getElementById("f-search").value.toLowerCase().trim();
+
+  FILTERED = ALL.filter(d =>
+    (!pays  || d.pays === pays) &&
+    (!ville || d.ville === ville) &&
+    (!spec  || d.specialite === spec) &&
+    (!q     || [d.nom,d.ville,d.specialite,d.telephone].some(v => v && v.toLowerCase().includes(q)))
+  );
+
+  document.getElementById("r-count").textContent  = FILTERED.length;
+  document.getElementById("st-total").textContent  = FILTERED.length;
+  document.getElementById("st-pays").textContent   = new Set(FILTERED.map(d=>d.pays)).size;
+  document.getElementById("st-villes").textContent = new Set(FILTERED.map(d=>d.ville)).size;
+  document.getElementById("st-spec").textContent   = new Set(FILTERED.map(d=>d.specialite)).size;
+  document.getElementById("sb-count").textContent  = FILTERED.length;
+  renderGrid();
+}
+
+function resetFilters() {
+  ["f-search","f-pays","f-ville","f-spec"].forEach(id => document.getElementById(id).value = "");
+  syncVilles(); applyFilters();
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.className = VIEW === "list" ? "list-view" : "grid";
+  if (!FILTERED.length) {
+    grid.innerHTML = `<div class="state-box"><i class="ti ti-search-off"></i><div class="state-title">Aucun résultat</div><div class="state-sub">Essayez d'autres filtres</div></div>`;
+    return;
+  }
+  grid.innerHTML = FILTERED.map((d, i) => {
+    const init = (d.nom||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    const [bg, fg] = specColor(d.specialite);
+    return `<div class="card" style="animation-delay:${i*.025}s" onclick="openDetail(${d.id})">
+      <div class="card-top">
+        <div class="avatar" style="background:${bg};color:${fg}">${init}</div>
+        <div>
+          <div class="card-name">${d.nom}</div>
+          <div class="card-city">${[d.ville,d.pays].filter(Boolean).join(", ")||"—"}</div>
+        </div>
+      </div>
+      ${d.specialite?`<span class="pill" style="background:${bg};color:${fg}">${d.specialite}</span>`:""}
+      <div class="card-divider"></div>
+      ${d.telephone?`<div class="card-detail"><i class="ti ti-phone"></i><span>${d.telephone}</span></div>`:""}
+      ${d.site_web?`<div class="card-detail"><i class="ti ti-world" style="color:var(--blue)"></i><a href="${d.site_web.startsWith('http')?d.site_web:'https://'+d.site_web}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-weight:600;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.site_web.replace(/^https?:\/\//,'').replace(/\/$/,'')}</a></div>`:`<div class="card-detail" style="opacity:.4"><i class="ti ti-world"></i><span>—</span></div>`}
+      <div class="card-actions">
+        ${d.telephone?`<button class="action-btn" onclick="event.stopPropagation();cp('${esc(d.telephone)}')"><i class="ti ti-phone"></i></button>`:""}
+        <button class="action-btn action-btn-wa" onclick="event.stopPropagation();wa('${esc(d.whatsapp||d.telephone)}')"><i class="ti ti-brand-whatsapp"></i> WA</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function showSkeletons() {
+  const grid = document.getElementById("grid");
+  grid.className = "grid";
+  grid.innerHTML = Array(8).fill(0).map(()=>`
+    <div class="skeleton">
+      <div style="display:flex;gap:11px;align-items:center">
+        <div class="sk-circle"></div>
+        <div style="flex:1"><div class="sk-line" style="height:13px;width:65%;margin-bottom:7px"></div><div class="sk-line" style="height:11px;width:45%"></div></div>
+      </div>
+      <div class="sk-line" style="height:22px;width:40%;border-radius:20px"></div>
+      <div class="sk-line" style="height:1px"></div>
+      <div class="sk-line" style="height:12px;width:80%"></div>
+      <div class="sk-line" style="height:12px;width:90%"></div>
+    </div>`).join("");
+}
+
+function setView(v) {
+  VIEW = v;
+  document.getElementById("btn-grid").classList.toggle("active", v==="grid");
+  document.getElementById("btn-list").classList.toggle("active", v==="list");
+  renderGrid();
+}
+
+function openDetail(id) {
+  const d = ALL.find(x=>x.id===id); if (!d) return;
+  MD = d;
+  document.getElementById("m-init").textContent = (d.nom||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  document.getElementById("m-name").textContent  = d.nom;
+  document.getElementById("m-role").textContent  = [d.specialite,d.ville].filter(Boolean).join(" · ")||"—";
+  document.getElementById("m-spec").textContent  = d.specialite||"—";
+  document.getElementById("m-loc").textContent   = [d.ville,d.pays].filter(Boolean).join(", ")||"—";
+  document.getElementById("m-phone").textContent = d.telephone||"—";
+  document.getElementById("m-wa").textContent    = d.whatsapp||d.telephone||"—";
+  const siteLink = document.getElementById("m-site");
+  const siteBtn  = document.getElementById("m-site-btn");
+  if (d.site_web) {
+    const url = d.site_web.startsWith("http") ? d.site_web : "https://" + d.site_web;
+    siteLink.textContent = d.site_web;
+    siteLink.href = url;
+    siteBtn.style.display = "flex";
+  } else {
+    siteLink.textContent = "—";
+    siteLink.href = "#";
+    siteBtn.style.display = "none";
+  }
+  document.getElementById("detail-modal").classList.add("open");
+}
+function copyModalPhone()  { if(MD&&MD.telephone) cp(MD.telephone); }
+function sendModalWA()     { if(MD) wa(MD.whatsapp||MD.telephone); }
+function openModalSite()   { if(MD&&MD.site_web) openSite(MD.site_web); }
+function openSite(url)     { if (!url) return; window.open(url.startsWith("http") ? url : "https://"+url, "_blank"); }
+function openAddModal()    { document.getElementById("add-modal").classList.add("open"); }
+function closeModal(id)    { document.getElementById(id).classList.remove("open"); }
+
+async function addEntry() {
+  const nom   = document.getElementById("a-nom").value.trim();
+  const pays  = document.getElementById("a-pays").value;
+  const ville = document.getElementById("a-ville").value.trim();
+  if (!nom || !pays || !ville) { showToast("Remplir Nom, Pays et Ville *", true); return; }
+
+  const btn = document.getElementById("add-save-btn");
+  btn.innerHTML = '<i class="ti ti-loader"></i> Sauvegarde...'; btn.disabled = true;
+
+  try {
+    const res = await fetch(SCRIPT_URL + "?action=add", {
+      method: "POST",
+      body: JSON.stringify({
+        nom, pays, ville,
+        specialite: document.getElementById("a-spec").value,
+        telephone:  document.getElementById("a-tel").value.trim(),
+        whatsapp:   document.getElementById("a-wa").value.trim(),
+        site_web:   document.getElementById("a-site").value.trim()
+      })
+    });
+    const json = await res.json();
+    if (json.status !== "ok") throw new Error(json.message);
+    closeModal("add-modal");
+    ["a-nom","a-ville","a-tel","a-wa","a-site"].forEach(id => document.getElementById(id).value="");
+    ["a-pays","a-spec"].forEach(id => document.getElementById(id).value="");
+    showToast("Société ajoutée avec succès ✓");
+    setTimeout(loadData, 1200);
+  } catch(err) {
+    showToast("Erreur: " + err.message, true);
+  } finally {
+    btn.innerHTML = '<i class="ti ti-check"></i> Sauvegarder'; btn.disabled = false;
+  }
+}
+
+function cp(t)    { navigator.clipboard.writeText(t).catch(()=>{}); showToast("Copié: " + t); }
+function esc(s)   { return (s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
+function wa(p)    { if (!p) return showToast("Pas de numéro", true); window.open("https://wa.me/" + p.replace(/[\s\-\(\)]/g,"").replace("+",""), "_blank"); }
+
+function setBadge(type, msg) { /* silent — no UI indicator */ }
+
+function showToast(msg, err=false) {
+  const t = document.getElementById("toast");
+  t.className = "toast " + (err ? "err" : "ok");
+  document.getElementById("t-icon").className = "ti " + (err ? "ti-x" : "ti-check");
+  document.getElementById("t-msg").textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+function exportCSV() {
+  if (!FILTERED.length) return showToast("Aucune donnée", true);
+  const cols = ["nom","pays","ville","specialite","telephone","whatsapp","site_web"];
+  const rows = [cols.join(","), ...FILTERED.map(d => cols.map(c=>`"${(d[c]||"").replace(/"/g,'""')}"`).join(","))];
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([rows.join("\n")], {type:"text/csv"}));
+  a.download = "cod_partner.csv"; a.click();
+  showToast("Fichier exporté ✓");
+}
+</script>
+</body>
+</html>
